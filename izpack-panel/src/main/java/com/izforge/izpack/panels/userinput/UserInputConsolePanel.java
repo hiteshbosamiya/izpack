@@ -129,18 +129,11 @@ public class UserInputConsolePanel extends AbstractConsolePanel
 
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
         this.panel = getPanel();
+
         IXMLElement spec = model.getPanelSpec(panel);
 
-        boolean isDisplayingHidden = false;
-        try
-        {
-            isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
-        }
-        catch (Exception ignore)
-        {
-            isDisplayingHidden = false;
-        }
-        panel.setDisplayHidden(isDisplayingHidden);
+        String displayHidden = spec.getAttribute(DISPLAY_HIDDEN);
+        panel.setDisplayHidden(displayHidden == null ? null : Boolean.parseBoolean(displayHidden));
 
         String condition = spec.getAttribute(DISPLAY_HIDDEN_CONDITION);
         if (condition != null && !condition.isEmpty())

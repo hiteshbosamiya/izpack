@@ -55,7 +55,7 @@ public class Panel extends DefaultConfigurationHandler implements Serializable
     /**
      * Whether the panel including all fields is read-only if otherwise hidden.
      */
-    private boolean displayHidden = false;
+    private Boolean displayHidden = false;
 
     /**
      * Condition whether the panel should be shown read-only in otherwise hidden.
@@ -219,17 +219,20 @@ public class Panel extends DefaultConfigurationHandler implements Serializable
         return this.displayHiddenCondition != null;
     }
 
+    public boolean hasDisplayHidden()
+    {
+        return displayHidden != null;
+    }
 
     public boolean isDisplayHidden()
     {
-        return displayHidden;
+        return displayHidden == null ? false : displayHidden;
     }
 
-    public void setDisplayHidden(boolean flag)
+    public void setDisplayHidden(Boolean flag)
     {
         this.displayHidden = flag;
     }
-
 
     public boolean isReadonly()
     {

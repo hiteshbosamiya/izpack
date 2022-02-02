@@ -144,16 +144,9 @@ public class UserInputPanel extends IzPanel
         this.delegatingPrompt = new DelegatingPrompt(prompt);
 
         this.spec = readSpec();
-        boolean isDisplayingHidden;
-        try
-        {
-            isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
-        }
-        catch (Exception ignore)
-        {
-            isDisplayingHidden = false;
-        }
-        panel.setDisplayHidden(isDisplayingHidden);
+
+        String displayHidden = spec.getAttribute(DISPLAY_HIDDEN);
+        panel.setDisplayHidden(displayHidden == null ? null : Boolean.parseBoolean(displayHidden));
 
         String condition = spec.getAttribute(DISPLAY_HIDDEN_CONDITION);
         if (condition != null && !condition.isEmpty())
@@ -353,7 +346,7 @@ public class UserInputPanel extends IzPanel
      */
     private void buildUI()
     {
-        Set<String> affectedVariables = new HashSet<String>();
+        Set<String> affectedVariables = new HashSet<>();
 
         // need to recreate the panel as TwoColumnLayout doesn't correctly support component removal
         panel.removeAll();
@@ -368,25 +361,38 @@ public class UserInputPanel extends IzPanel
             Panel metadata = getMetadata();
             boolean required = FieldHelper.isRequired(fieldDefinition, installData, matcher);
 
-            if (required && fieldDefinition.isConditionTrue())
+            if (required && (metadata.hasDisplayHidden() || metadata.hasDisplayHiddenCondition() ||
+                    fieldDefinition.hasDisplayHidden() || fieldDefinition.hasDisplayHiddenCondition()))
+            {
+                enabled = !(fieldDefinition.isEffectiveDisplayHidden(metadata.isDisplayHidden() ||
+                                (metadata.getDisplayHiddenCondition() != null &&
+                                        rules.isConditionTrue(metadata.getDisplayHiddenCondition())), rules));
+                addToPanel = true;
+                boolean displayed = true;
+                if (fieldDefinition.hasDisplayHidden())
+                {
+                    displayed = fieldDefinition.isDisplayHidden();
+                }
+                else if (fieldDefinition.hasDisplayHiddenCondition())
+                {
+                    displayed = rules.isConditionTrue(fieldDefinition.getDisplayHiddenCondition());
+                }
+                else if (metadata.hasDisplayHidden())
+                {
+                    displayed = metadata.isDisplayHidden();
+                }
+                else if (metadata.hasDisplayHiddenCondition())
+                {
+                    displayed = rules.isConditionTrue(metadata.getDisplayHiddenCondition());
+                }
+                view.setDisplayed(displayed);
+            }
+            else if (required && fieldDefinition.isConditionTrue())
             {
                 enabled = !(fieldDefinition.isEffectiveReadonly(
                         metadata.isReadonly()
                         || (metadata.getReadonlyCondition() != null && rules.isConditionTrue(metadata.getReadonlyCondition())),
                         rules));
-                addToPanel = true;
-                view.setDisplayed(true);
-            }
-            else if (required
-                    && (
-                            fieldDefinition.isEffectiveDisplayHidden(
-                                    metadata.isDisplayHidden()
-                                    || (metadata.getDisplayHiddenCondition() != null && rules.isConditionTrue(metadata.getDisplayHiddenCondition())),
-                                    rules)
-                       )
-                    )
-            {
-                enabled = false;
                 addToPanel = true;
                 view.setDisplayed(true);
             }

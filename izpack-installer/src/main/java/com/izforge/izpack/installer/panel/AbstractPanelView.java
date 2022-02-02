@@ -308,7 +308,6 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
             if (!visible && panel.hasDisplayHiddenCondition())
             {
                 visible = installData.getRules().isConditionTrue(panel.getDisplayHiddenCondition());
-                panel.setDisplayHidden(visible);
                 logger.fine("Panel '" + getPanelId() + "' depending on displayHiddenCondition '" + panel.getDisplayHiddenCondition() + "' " + (visible?"can be shown read-only":"will be skipped"));
             }
             if (visible)

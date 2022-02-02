@@ -259,6 +259,36 @@ public abstract class Field
         return result;
     }
 
+    public boolean isDisplayHidden()
+    {
+        return displayHidden == null ? false : displayHidden;
+    }
+
+    public boolean hasDisplayHidden()
+    {
+        return displayHidden != null;
+    }
+
+    /**
+     * Get the 'displayHiddenCondition' of this field.
+     *
+     * @return the condition to set when the field should be shown read-only in otherwise hidden state
+     */
+    public String getDisplayHiddenCondition()
+    {
+        return this.displayHiddenCondition;
+    }
+
+    /**
+     * Whether the 'displayHiddenCondition' is set for this field.
+     *
+     * @return the condition to set when the field should be shown read-only in otherwise hidden state
+     */
+    public boolean hasDisplayHiddenCondition()
+    {
+        return this.displayHiddenCondition != null;
+    }
+
     /**
      * Returns the packs that the field applies to.
      *
