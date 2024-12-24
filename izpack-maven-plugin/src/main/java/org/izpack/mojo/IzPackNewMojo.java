@@ -261,13 +261,22 @@ public class IzPackNewMojo extends AbstractMojo
                 }
                 if (!containsExcludedProperty(propertyName, exclusionList))
                 {
-                    if (propertyManager.addProperty(propertyName, value))
+                    String existingValue = propertyManager.getProperty(propertyName);
+                    if (existingValue != null && existingValue.equals(value))
                     {
-                        getLog().debug("Maven property added: " + propertyName + "=" + value);
+                        getLog().debug("Maven property exists: " + propertyName + "=" + value);
                     }
                     else
                     {
-                        getLog().warn("Maven property " + propertyName + " could not be overridden");
+                        if (propertyManager.addProperty(propertyName, value))
+                        {
+                            getLog().debug("Maven property added: " + propertyName + "=" + value);
+                        }
+                        else
+                        {
+                            getLog().warn("Property " + propertyName + "=" + existingValue +
+                                    " could not be overridden with maven property " + propertyName + "=" + value);
+                        }
                     }
                 }
             }
