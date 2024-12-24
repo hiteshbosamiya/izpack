@@ -133,13 +133,22 @@ public class IzPackNewMojo extends AbstractMojo
     private String finalName;
 
     /**
-     * Classifier to add to the artifact generated. If given, the artifact is attachable.
-     * Furthermore, the output file name gets -<i>classifier</i> as suffix.
-     * If this is not given,it will merely be written to the output directory
-     * according to the finalName.
+     * Classifier to add to the artifact generated (applicable when packaging
+     * type is jar). If given, the artifact is attachable. Furthermore, the
+     * output file name gets -<i>classifier</i> as suffix. If this is not given,
+     * it will merely be written to the output directory according to the
+     * finalName.
      */
     @Parameter
     private String classifier;
+
+    /**
+     * Whether to attach the generated installer jar to the project artifact if
+     * a classifier is specified (applicable when packaging type is jar). This
+     * has no effect if no classifier was specified.
+     */
+    @Parameter( defaultValue = "true")
+    private boolean enableAttachArtifact;
 
     /**
      * Comma separated list of strings marked for exclusion.
@@ -152,6 +161,7 @@ public class IzPackNewMojo extends AbstractMojo
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        setDefaultClassifier();
         File jarFile = getJarFile();
 
         CompilerData compilerData = initCompilerData(jarFile);
@@ -181,22 +191,49 @@ public class IzPackNewMojo extends AbstractMojo
             throw new MojoExecutionException( "Failure", e );
         }
 
-        Artifact artifact = project.getArtifact();
-        artifact.setFile(jarFile);
+        if (project.getPackaging().equals("izpack-jar"))
+        {
+            Artifact artifact = project.getArtifact();
+            artifact.setFile(jarFile);
+        }
+        else
+        {
+            if (enableAttachArtifact)
+            {
+                projectHelper.attachArtifact(project, "jar", classifier, jarFile);
+            }
+        }
+    }
+
+    private void setDefaultClassifier()
+    {
+        if (classifier == null)
+        {
+            classifier = "";
+        }
+        classifier = classifier.trim();
+        if (classifier.equals("-"))
+        {
+            classifier = project.getPackaging().equals("izpack-jar") ? "" : "installer";
+        }
+        else if (classifier.isEmpty())
+        {
+            classifier = "installer";
+        }
     }
 
     private File getJarFile()
     {
-        String localClassifier = classifier;
-        if (classifier == null || classifier.trim().isEmpty())
+        String outputFileName = finalName;
+        if (!classifier.isEmpty())
         {
-            localClassifier = "";
+            if (!classifier.startsWith("-"))
+            {
+                outputFileName += "-";
+            }
+            outputFileName += classifier;
         }
-        else if (!classifier.startsWith("-"))
-        {
-            localClassifier = "-" + classifier;
-        }
-        return new File(outputDirectory, finalName + localClassifier + ".jar");
+        return new File(outputDirectory, outputFileName + ".jar");
     }
 
     private void initMavenProperties(PropertyManager propertyManager)

@@ -26,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Test of new IzPack mojo
- * 
+ *
  * @author Anthonin Bonnefoy
  */
 public class IzPackNewMojoTest extends AbstractMojoTestCase {
@@ -68,7 +68,7 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
         setVariableValueToObject(mojo, "project", project);
         mojo.execute();
 
-        File file = new File( "target/sample/izpackResult.jar" );
+        File file = new File( "target/sample/izpackResult-installer.jar" );
         assertThat( file.exists(), Is.is( true ) );
         JarFile jar = new JarFile( file );
         assertThat( (ZipFile)jar, ZipMatcher.isZipMatching( IsCollectionContaining.hasItems(
@@ -127,7 +127,7 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
         // Verify the generated file exists.
         assertThat( file.exists(), Is.is( true ) );
     }
-    
+
     @Test
     public void testFixIZPACK_1400() throws Exception {
 
@@ -148,7 +148,7 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
                                                 null,       // List goals
                                                 null,       // String executionRootDir
                                                 null,       // Properties executionProperties
-                                                 userProps,  // Properties userProperties
+                                                userProps,  // Properties userProperties
                                                 null        // Date startTime
                                                );
         setVariableValueToObject(mojo, "session", session);
@@ -173,12 +173,12 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
         assertEquals("default", props.getProperty("property1"));
         // but computated properties do reflect the user property
         assertEquals("value1",  props.getProperty("property2"));
-        
+
         // verify the behavior of IzPack Maven Plugin
         PropertyManager propertyManager = (PropertyManager) getVariableValueFromObject(mojo, "propertyManager");
         assertThat(propertyManager, IsNull.notNullValue() );
         // The IzPackMaven plugin should honor the user property set with "-Dproperty1=value1"
-        assertEquals("value1" , propertyManager.getProperty("property1")); 	
+        assertEquals("value1" , propertyManager.getProperty("property1"));
         assertEquals("value1" , propertyManager.getProperty("property2"));
     }
 
